@@ -35,14 +35,3 @@ class GobbleGums:
         return self.gobblegums
     
 
-c = GobbleGums()
-c.Abh = False
-c.return_results()
-c.remove_gobblegum("Abh")
-c.remove_gobblegum("Nukes")
-c.remove_gobblegum("Extra_Credit")
-c.remove_gobblegum("Idle_Eyes")
-c.remove_gobblegum("Reign_Drops")
-c.remove_gobblegum("Shopping_Free")
-
-print(c.return_results())
