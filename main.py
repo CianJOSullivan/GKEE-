@@ -1,4 +1,8 @@
 import pygame
+from images import *
+import time
+from logic import *
+import json
 
 
 pygame.font.init()
@@ -23,7 +27,7 @@ while run:
     clock.tick(60)
 
 
-    # win.fill((0, 0, 0))
+    win.fill((0, 0, 0))
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
