@@ -9,12 +9,12 @@ import json
 pygame.font.init()
 pygame.init()
 pygame.display.set_caption("Gorod Krovi Easter Egg")
+
 icon = Shopping_Free
 pygame.display.set_icon(icon)
 
 clock = pygame.time.Clock()
 win = pygame.display.set_mode((1250, 850))
-
 
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -41,7 +41,6 @@ for image in gobblegum_images:
     
 
 gobblegum_names = ["Reign_Drops", "Idle_Eyes", "Extra_Credit", "Nukes", "Abh"]
-
 gobblegums = {"Reign_Drops": True, "Idle_Eyes": True, "Extra_Credit": True, "Nukes": True, "Abh": True}
 
 # Initialize the ValveLogic class
@@ -97,9 +96,6 @@ def draw_gobblegums():
         x +=  140 + spacing
         
     
-        
-
-
 def click_gobblegum(mouse_pos):
     x, y = 75, 700
     spacing = 100
@@ -118,7 +114,6 @@ def click_gobblegum(mouse_pos):
         x += 140 + spacing
  
 
-    
 def handle_click(mouse_pos):
     # Handle mouse click events
     x, y = 35, 470
