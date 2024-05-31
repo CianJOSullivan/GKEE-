@@ -177,6 +177,29 @@ def get_current_state():
                     break
     return current_state
 
+def get_changes_required(current_state, best_output):
+    """
+    Get the changes required to reach the best output from the current state.
+    """
+    changes_required = {}
+    for valve_name, value in best_output.items():
+        current_value = current_state.get(valve_name)
+        # Remove the "green-" prefix if present in the current state
+        if isinstance(current_value, str) and current_value.startswith("green-"):
+            current_value = current_value.split("-")[1]
+        # Convert string values to integers if necessary
+        if isinstance(current_value, str) and current_value.isdigit():
+            current_value = int(current_value)
+        # Check if the values are different
+        if current_value != value:
+            changes_required[valve_name] = value
+    return changes_required
+
+
+
+
+
+
 def main():
     run = True
     while run:
@@ -195,7 +218,12 @@ def main():
         if any("green" in value for value in current_state.values()):
             optimal_solution, best_output = valve_logic.find_optimal_solution(current_state)
             if best_output:
-                print(f"Take {optimal_solution.capitalize()}: {best_output}")
+                print("Current State:", current_state)
+                print("Best Output:", best_output)
+                changes_required = get_changes_required(current_state, best_output)
+                print("Changes Required:", changes_required)
+                for valve_name, value in changes_required.items():
+                    print(f"{valve_name} to {value}")
 
         draw_gui()
         pygame.display.update()
