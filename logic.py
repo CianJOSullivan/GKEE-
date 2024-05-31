@@ -1,36 +1,46 @@
-# add valve logic here
+import json
+
 class ValveLogic:
-    def __init__(self, json_data):
-        self.valve_data = json_data  # Store the valve data from the JSON file
+    def __init__(self, json_file):
+        # Load the valve data from the JSON file
+        with open(json_file) as f:
+            self.valve_data = json.load(f)["Valves"][0]  # Access the dictionary within the list
 
-    def update_valve_state(self, user_input):
-        # Parse the user input
-        dept = user_input.get("DEPT", None)
-        dragon = user_input.get("DRAGON", None)
-        arm = user_input.get("ARM", None)
-        supply = user_input.get("SUPPLY", None)
-        inf = user_input.get("INF", None)
-        tank = user_input.get("TANK", None)
+    def find_optimal_solution(self, current_state):
+        """
+        Find the most optimal solution based on the current state of the valves.
+        """
+        green_location = None
+        cylinder_location = None
 
-        # Initialize an empty list to store the valve states
-        valve_states = []
+        # Identify the green location and the cylinder location
+        for location, state in current_state.items():
+            if "green" in state:
+                green_location = location
+                green_number = state.split('-')[1]
+            if state == "cylinder":
+                cylinder_location = location
 
-        # Look up valve states based on user input
-        if dept is not None:
-            valve_states.append(self.valve_data["Valves"]["DEPT"][f"option_{dept}"])
-        if dragon is not None:
-            valve_states.append(self.valve_data["Valves"]["DRAGON"][f"option_{dragon}"])
-        if arm is not None:
-            valve_states.append(self.valve_data["Valves"]["ARM"][f"option_{int(arm)}"])
-        if supply is not None:
-            valve_states.append(self.valve_data["Valves"]["SUPPLY"][f"option_{supply}"])
-        if inf is not None:
-            valve_states.append(self.valve_data["Valves"]["INF"][f"option_{inf}"])
-        if tank is not None:
-            valve_states.append(self.valve_data["Valves"]["TANK"][f"option_{tank}"])
+        best_option = None
+        max_matches = -1
+        best_output = None
 
-        return valve_states
+        for option_key in ["option_1", "option_2"]:
+            option_data = self.valve_data[green_location][option_key]
+            option_matches = 0
 
+            for key, values in option_data.items():
+                if key == f"cylinder_{cylinder_location}":
+                    for location in current_state:
+                        if str(current_state[location]) == str(values[location]):
+                            option_matches += 1
+
+                    if option_matches > max_matches:
+                        max_matches = option_matches
+                        best_option = option_key
+                        best_output = values
+
+        return best_option, best_output
 
 
 class GobbleGums:
@@ -48,8 +58,8 @@ class GobbleGums:
         if not any(self.gobblegums):
             for i in range(len(self.gobblegums)):
                 self.gobblegums[i] = True
-        return self.gobblegums 
-    
+        return self.gobblegums
+
     def remove_gobblegum(self, gobblegum):
         if gobblegum == "Abh":
             self.Abh = False
@@ -65,5 +75,3 @@ class GobbleGums:
             self.Shopping_Free = False
         self.gobblegums = [self.Abh, self.Nukes, self.Extra_Credit, self.Idle_Eyes, self.Reign_Drops, self.Shopping_Free]
         return self.gobblegums
-    
-
