@@ -30,6 +30,20 @@ NAME_FONT = pygame.font.SysFont("Roboto-Black", 30)  # Smaller font for location
 selected_states = {"DEPT": [0,0,0,0,0], "DRAGON": [0,0,0,0,0], "ARM": [0,0,0,0,0], "SUPPLY": [0,0,0,0,0], "INF": [0,0,0,0,0], "TANK": [0,0,0,0,0]}
 locations = ["DEPT", "DRAGON", "ARM", "SUPPLY", "INF", "TANK"]
 
+gobblegum_images = [Reign_Drops, Idle_Eyes, Extra_Credit, Nukes, Abh]
+gobblegum_images = [pygame.transform.scale(image, (140, 140)) for image in gobblegum_images]
+gobblegum_images_gray = []
+
+for image in gobblegum_images:
+    image_gray = image.copy()
+    image_gray.fill((45, 45, 45, 255), special_flags=pygame.BLEND_RGBA_MULT)
+    gobblegum_images_gray.append(image_gray)
+    
+
+gobblegum_names = ["Reign_Drops", "Idle_Eyes", "Extra_Credit", "Nukes", "Abh"]
+
+gobblegums = {"Reign_Drops": True, "Idle_Eyes": True, "Extra_Credit": True, "Nukes": True, "Abh": True}
+
 # Initialize the ValveLogic class
 valve_logic = ValveLogic("valve.json")
 
@@ -70,6 +84,39 @@ def draw_valve_text():
         for row in range(5):
             draw_text(text_options[row], NAME_FONT, BLACK if selected_states[valve_name][row]  else WHITE, x + (width//2), y + (row * (spacing + height)) + (height//2))
         x += 170
+
+def draw_gobblegums():
+    x, y = 75, 700
+    spacing = 100
+    for val, image in enumerate(gobblegum_images):
+        name = gobblegum_names[val]
+        if gobblegums[name] == False:
+            win.blit(gobblegum_images_gray[val], (x, y))
+        else:
+            win.blit(image, (x, y))
+        x +=  140 + spacing
+        
+    
+        
+
+
+def click_gobblegum(mouse_pos):
+    x, y = 75, 700
+    spacing = 100
+    for i in range(5):
+        if (x <= mouse_pos[0] <= x + 140) and (y <= mouse_pos[1] <= y + 140):
+            gobblegum = gobblegum_names[i]
+            gobblegums[gobblegum] = False
+            all_selected = False
+            for key in gobblegums:
+                if gobblegums[key] == True:
+                    all_selected = True
+            if not all_selected:
+                for key in gobblegums:
+                    gobblegums[key] = True
+            return gobblegum
+        x += 140 + spacing
+ 
 
     
 def handle_click(mouse_pos):
@@ -118,6 +165,7 @@ def draw_gui():
     draw_valve_buttons()
     draw_valve_text()
     draw_valve_headings()
+    draw_gobblegums()
     
 
 
@@ -134,6 +182,7 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
                 # Handle mouse click
                 handle_click(mouse_pos)
+                click_gobblegum(mouse_pos)
 
         # Draw GUI elements
         draw_gui()
