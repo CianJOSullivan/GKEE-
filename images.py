@@ -1,6 +1,6 @@
 import pygame 
 
-# Load the image
+
 Abh = pygame.image.load('images/Anywhere_But_Here.jpeg')
 Nukes = pygame.image.load('images/Dead_of_Nuclear_Winter_GobbleGum_BO3.jpeg')
 Extra_Credit = pygame.image.load('images/Extra_Credit.jpeg')

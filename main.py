@@ -3,8 +3,10 @@ from images import *
 import time
 from logic import *
 import json
+from timer import Timer
 
 
+timer = Timer()
 
 pygame.font.init()
 pygame.init()
@@ -23,7 +25,8 @@ BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 
 STAT_FONT = pygame.font.SysFont("Roboto-Black", 50)
-NAME_FONT = pygame.font.SysFont("Roboto-Black", 30)  # Smaller font for location names
+NAME_FONT = pygame.font.SysFont("Roboto-Black", 30)  
+TIMER_FONT = pygame.font.SysFont("Roboto-Black", 250)
 # font = pygame.font.SysFont(None, 30)
 
 # Define a dictionary to keep track of the selected state for each location
@@ -152,6 +155,12 @@ def handle_click(mouse_pos):
                     selected_states[valve_name][4] = 0
                     selected_states[valve_name][i] = 1
         x += 170
+
+
+def draw_timer():
+    # Draw the timer
+    timer_text = timer.get_time()
+    draw_text(timer_text, TIMER_FONT, BLACK, 625, 50)
             
 
 def draw_gui():
@@ -161,6 +170,7 @@ def draw_gui():
     draw_valve_text()
     draw_valve_headings()
     draw_gobblegums()
+    draw_timer()
     
 
 
@@ -178,7 +188,9 @@ def main():
                 # Handle mouse click
                 handle_click(mouse_pos)
                 click_gobblegum(mouse_pos)
+            timer.get_input(event)
 
+        timer.run()
         # Draw GUI elements
         draw_gui()
         pygame.display.update()
