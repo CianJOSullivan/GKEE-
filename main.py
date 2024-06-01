@@ -4,6 +4,8 @@ import time
 from logic import *
 import json
 
+
+
 pygame.font.init()
 pygame.init()
 pygame.display.set_caption("Gorod Krovi Easter Egg")
@@ -21,7 +23,8 @@ BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 
 STAT_FONT = pygame.font.SysFont("Roboto-Black", 50)
-NAME_FONT = pygame.font.SysFont("Roboto-Black", 30)
+NAME_FONT = pygame.font.SysFont("Roboto-Black", 30)  # Smaller font for location names
+# font = pygame.font.SysFont(None, 30)
 
 selected_states = {"DEPT": [0, 0, 0, 0, 0], "DRAGON": [0, 0, 0, 0, 0], "ARM": [0, 0, 0, 0, 0], "SUPPLY": [0, 0, 0, 0, 0], "INF": [0, 0, 0, 0, 0], "TANK": [0, 0, 0, 0, 0]}
 locations = ["DEPT", "DRAGON", "ARM", "SUPPLY", "INF", "TANK"]
@@ -145,6 +148,7 @@ def handle_click(mouse_pos):
                     selected_states[valve_name][4] = 0
                     selected_states[valve_name][i] = 1
         x += 170
+            
 
 def draw_gui():
     win.fill((240, 240, 240))
@@ -155,45 +159,6 @@ def draw_gui():
 
     draw_gobblegums()
     
-
-
-def get_current_state():
-    current_state = {}
-    for valve_name in locations:
-        if selected_states[valve_name][0]:
-            for i in range(2, 5):
-                if selected_states[valve_name][i]:
-                    current_state[valve_name] = f"green-{i-1}"
-        elif selected_states[valve_name][1]:
-            current_state[valve_name] = "cylinder"
-        else:
-            for i in range(2, 5):
-                if selected_states[valve_name][i]:
-                    current_state[valve_name] = str(i - 1)
-                    break
-    return current_state
-
-def get_changes_required(current_state, best_output):
-    """
-    Get the changes required to reach the best output from the current state.
-    """
-    changes_required = {}
-    for valve_name, value in best_output.items():
-        current_value = current_state.get(valve_name)
-        # Remove the "green-" prefix if present in the current state
-        if isinstance(current_value, str) and current_value.startswith("green-"):
-            current_value = current_value.split("-")[1]
-        # Convert string values to integers if necessary
-        if isinstance(current_value, str) and current_value.isdigit():
-            current_value = int(current_value)
-        # Check if the values are different
-        if current_value != value:
-            changes_required[valve_name] = value
-    return changes_required
-
-
-
-
 
 
 def main():
@@ -207,20 +172,9 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
                 handle_click(mouse_pos)
                 click_gobblegum(mouse_pos)
+            timer.get_input(event)
 
-        # Check for optimal solution if a green light is turned on
-        current_state = get_current_state()
-
-        if any("green" in value for value in current_state.values()):
-            optimal_solution, best_output = valve_logic.find_optimal_solution(current_state)
-            if best_output:
-                print("Current State:", current_state)
-                print("Best Output:", best_output)
-                changes_required = get_changes_required(current_state, best_output)
-                print("Changes Required:", changes_required)
-                for valve_name, value in changes_required.items():
-                    print(f"{valve_name} to {value}")
-
+        # Draw GUI elements
         draw_gui()
         pygame.display.update()
 

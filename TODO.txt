@@ -1,2 +1,2 @@
-
+Get center of timer and center it within its box
 
