@@ -25,7 +25,9 @@ NAME_FONT = pygame.font.SysFont("Roboto-Black", 30)
 TIMER_FONT = pygame.font.SysFont("Roboto-Black", 250)
 SPLIT_FONT = pygame.font.SysFont("Roboto-Black", 40)
 
-# Define a dictionary to keep track of the selected state for each location
+RESET_BUTTON_RECT = pygame.Rect(1050, 420, 170, 40)
+
+#  dictionary to keep track of the selected state for each location
 selected_states = {"DEPT": [0, 0, 0, 0, 0], "DRAGON": [0, 0, 0, 0, 0], "ARM": [
     0, 0, 0, 0, 0], "SUPPLY": [0, 0, 0, 0, 0], "INF": [0, 0, 0, 0, 0], "TANK": [0, 0, 0, 0, 0]}
 locations = ["DEPT", "DRAGON", "ARM", "SUPPLY", "INF", "TANK"]
@@ -56,7 +58,6 @@ gobblegums = {"Reign_Drops": True, "Idle_Eyes": True,
 # Initialize the classes
 valve_logic = ValveLogic("valve.json")
 timer = Timer()
-
 
 def draw_text(text, font, color, x, y):
     textobj = font.render(text, True, color)
@@ -141,7 +142,9 @@ def click_gobblegum(mouse_pos):
 
 
 def handle_click(mouse_pos):
-    # Handle mouse click events
+    if RESET_BUTTON_RECT.collidepoint(mouse_pos):
+        reset_valves()
+        return
     x, y = 35, 470
     width = 140
     height = 40
@@ -193,12 +196,16 @@ def reset():
     global personal_record, world_record
     personal_record = []
     world_record = []
-    for key in selected_states:
-        selected_states[key] = [0, 0, 0, 0, 0]
-    results.clear()
+    reset_valves()
     for key in gobblegums:
         gobblegums[key] = True
     return selected_states, results, gobblegums
+
+
+def reset_valves():
+    for key in selected_states:
+        selected_states[key] = [0, 0, 0, 0, 0]
+    results.clear()
 
 
 def update_visual_splits():
@@ -256,6 +263,11 @@ def draw_black_rect():
     pygame.draw.rect(win, BLACK, (0, 0, 1250, 400))
 
 
+def draw_reset_button():
+    pygame.draw.rect(win, BLACK, RESET_BUTTON_RECT)
+    draw_text("RESET VALVES", NAME_FONT, WHITE, RESET_BUTTON_RECT.centerx, RESET_BUTTON_RECT.centery)
+
+
 def draw_gui():
     draw_black_rect()
     draw_valve_buttons()
@@ -266,7 +278,7 @@ def draw_gui():
     draw_results_box()
     draw_splits()
     draw_split_names()
-    
+    draw_reset_button()  
 
 
 def main():
