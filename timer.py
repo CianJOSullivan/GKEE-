@@ -1,5 +1,6 @@
 import pygame
 import json
+import time
 
 class Timer:
     def __init__(self) -> None:
@@ -10,29 +11,47 @@ class Timer:
         self.attempts = 0
         self.world_record = []
         self.personal_best = []
+        self.wr_difference = []
+        self.pr_difference = []
         self.finished = False
+        self.start_time = 0
+        self.split_number = 0
+        self.load_data()
 
 
     def start(self):
         self.running = True 
+        self.start_time = time.time()
         self.attempts += 1
         self.load_data()
+        self.split_number = 0 
 
 
     def get_time(self): 
-        seconds = self.timer // 60
+        if self.running and not self.finished:
+            seconds = int(round(time.time() - self.start_time, 0))
+        elif self.finished:
+            seconds = self.splits[-1]
+        else:
+            seconds = 0
+   
         minutes = seconds // 60
         remaining_seconds = seconds % 60
         return f"{minutes:02}:{remaining_seconds:02}"
     
 
     def split(self):
-        self.splits.append(self.timer)
+        self.splits.append(int(round(time.time() - self.start_time, 0)))
+        self.split_number += 1
+        pr = self.splits[-1] - self.personal_best[self.split_number - 1]
+        wr = self.splits[-1] - self.world_record[self.split_number - 1]
+        self.wr_difference.append(wr)
+        self.pr_difference.append(pr)
+        
 
+    def return_visual_splits(self):
+        return self.wr_difference, self.pr_difference
 
-    def get_splits(self):
-        return [self.get_time(t) for t in self.splits]
-    
 
     def load_data(self):
         with open(self.data, "r") as file:
@@ -44,7 +63,15 @@ class Timer:
         self.personal_best = [int(i) for i in self.personal_best]
         self.attempts = int(self.attempts)
 
-       
+
+    def get_personal_record(self):
+         return self.pr_difference
+    
+
+    def get_world_record(self):
+        return self.wr_difference
+
+
     def save_data(self):
         if self.finished:
             with open(self.data, "w") as file:
@@ -72,6 +99,9 @@ class Timer:
         self.splits = []
         self.running = False
         self.finished = False
+        self.start_time = 0
+        self.wr_difference = []
+        self.pr_difference = []
         self.load_data()
 
 
@@ -80,20 +110,17 @@ class Timer:
             self.finished = True
             self.running = False
             
-        
+
     def get_input(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 if self.running and not self.finished:
                     self.split()
                     self.check_finished()
+                    self.return_visual_splits()
                 elif not self.running and not self.finished:
                     self.start()
             elif event.key == pygame.K_RETURN:
                 self.save_data()
                 self.reset()
     
-
-    def run(self):
-        if self.running:
-            self.timer += 1
