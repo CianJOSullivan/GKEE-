@@ -1,4 +1,3 @@
 # GKEE-
 
-- I dont know why there is a - at the end
-- add all valve logic into the logic.py file
+The **BEST** Gorod Krovi easter egg helper
