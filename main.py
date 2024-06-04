@@ -3,7 +3,6 @@ from images import *
 from logic import *
 from timer import Timer
 
-
 pygame.font.init()
 pygame.init()
 pygame.display.set_caption("Gorod Krovi Easter Egg")
@@ -27,12 +26,10 @@ SPLIT_FONT = pygame.font.SysFont("Roboto-Black", 40)
 
 RESET_BUTTON_RECT = pygame.Rect(1050, 420, 170, 40)
 
-#  dictionary to keep track of the selected state for each location
 selected_states = {"DEPT": [0, 0, 0, 0, 0], "DRAGON": [0, 0, 0, 0, 0], "ARM": [
     0, 0, 0, 0, 0], "SUPPLY": [0, 0, 0, 0, 0], "INF": [0, 0, 0, 0, 0], "TANK": [0, 0, 0, 0, 0]}
 locations = ["DEPT", "DRAGON", "ARM", "SUPPLY", "INF", "TANK"]
 
-# Define a list to store the results
 results = []
 personal_record = []
 world_record = []
@@ -49,13 +46,14 @@ for image in gobblegum_images:
     image_gray.fill((45, 45, 45, 255), special_flags=pygame.BLEND_RGBA_MULT)
     gobblegum_images_gray.append(image_gray)
 
-
 gobblegum_names = ["Reign_Drops", "Idle_Eyes",
                    "Extra_Credit", "Nukes", "Shopping_Free"]
 gobblegums = {"Reign_Drops": True, "Idle_Eyes": True,
               "Extra_Credit": True, "Nukes": True, "Shopping_Free": True}
 
-# Initialize the classes
+trophies = ["Spawn", "Eyebeam", "Tank", "Toilet", "Dragon Strike", "Bunker"]
+trophies_selected = {trophy: False for trophy in trophies}
+
 valve_logic = ValveLogic("valve.json")
 timer = Timer()
 
@@ -64,7 +62,6 @@ def draw_text(text, font, color, x, y):
     textrect = textobj.get_rect()
     textrect.center = (x, y)
     win.blit(textobj, textrect)
-
 
 def draw_valve_buttons():
     x, y = 35, 470
@@ -77,17 +74,14 @@ def draw_valve_buttons():
                 x, y + (row * (spacing + height)), width, height))
         x += 170
 
-
 def draw_results_box():
     pygame.draw.rect(win, BLACK, (1050, 470, 170, 220))
     x, y = 1050, 470
     for result in results:
-        # get width and height of the text box
         text = NAME_FONT.render(result, True, WHITE)
         text_width = text.get_width()
         draw_text(result, NAME_FONT, WHITE, x + 10 + (text_width // 2), y + 20)
         y += 35
-
 
 def draw_valve_headings():
     x, y = 105, 450
@@ -96,7 +90,6 @@ def draw_valve_headings():
     for name in headings:
         draw_text(name, NAME_FONT, BLACK, x, y)
         x += 170
-
 
 def draw_valve_text():
     x, y = 35, 470
@@ -110,7 +103,6 @@ def draw_valve_text():
                       else WHITE, x + (width//2), y + (row * (spacing + height)) + (height//2))
         x += 170
 
-
 def draw_gobblegums():
     x, y = 75, 700
     spacing = 100
@@ -121,6 +113,16 @@ def draw_gobblegums():
         else:
             win.blit(image, (x, y))
         x += 140 + spacing
+
+
+def draw_trophies():
+    if not all(trophies_selected.values()):  
+        x, y = 50, 350
+        spacing = 200
+        for trophy in trophies:
+            color = GREEN if trophies_selected[trophy] else WHITE
+            draw_text(trophy, NAME_FONT, color, x, y)
+            x += spacing
 
 
 def click_gobblegum(mouse_pos):
@@ -140,28 +142,51 @@ def click_gobblegum(mouse_pos):
             return gobblegum
         x += 140 + spacing
 
+def draw_bombs():
+    x, y = 50, 350
+    draw_text("TEST", NAME_FONT, WHITE, x, y)
+
+
+def click_trophies(mouse_pos):
+    x, y = 50, 350
+    spacing = 200
+    padding = 10
+
+    if not all(trophies_selected.values()):
+        for trophy in trophies:
+            text_surface = NAME_FONT.render(trophy, True, WHITE)
+            text_width, text_height = text_surface.get_size()
+
+            text_rect = text_surface.get_rect(
+                topleft=(x - padding, y - text_height // 2 - padding)
+            )
+            text_rect.width += 2 * padding
+            text_rect.height += 2 * padding
+
+            if text_rect.collidepoint(mouse_pos):
+                trophies_selected[trophy] = not trophies_selected[trophy]
+            x += spacing  
+
 
 def handle_click(mouse_pos):
     if RESET_BUTTON_RECT.collidepoint(mouse_pos):
         reset_valves()
         return
+    click_trophies(mouse_pos)
     x, y = 35, 470
     width = 140
     height = 40
     spacing = 5
     for valve_name in locations:
-        # Check if the click occurred on the Green box
         for i in range(5):
             box_y = y + (i * (spacing + height))
             if (x <= mouse_pos[0] <= x + width) and (box_y <= mouse_pos[1] <= box_y + height):
                 if i == 0:
                     for name in selected_states:
                         selected_states[name][0] = 0
-                    # Set the selected state of the clicked valve to True
                     selected_states[valve_name][0] = 1
                     if selected_states[valve_name][1] == 1:
                         selected_states[valve_name][1] = 0
-
                 elif i == 1:
                     for name in selected_states:
                         selected_states[name][1] = 0
@@ -171,7 +196,6 @@ def handle_click(mouse_pos):
                     selected_states[valve_name][2] = 0
                     selected_states[valve_name][3] = 0
                     selected_states[valve_name][4] = 0
-
                 else:
                     selected_states[valve_name][1] = 0
                     selected_states[valve_name][2] = 0
@@ -180,17 +204,14 @@ def handle_click(mouse_pos):
                     selected_states[valve_name][i] = 1
         x += 170
 
-
 def display_optimal_solution():
     results.clear()
     for i in valve_logic.return_optimal_solution(locations, selected_states):
         results.append(i)
 
-
 def draw_timer():
     timer_text = timer.get_time()
     draw_text(timer_text, TIMER_FONT, WHITE, 1000, 150)
-
 
 def reset():
     global personal_record, world_record
@@ -199,20 +220,21 @@ def reset():
     reset_valves()
     for key in gobblegums:
         gobblegums[key] = True
-    return selected_states, results, gobblegums
 
+    for key in trophies_selected:   
+        trophies_selected[key] = False
+    return selected_states, results, gobblegums
+    
 
 def reset_valves():
     for key in selected_states:
         selected_states[key] = [0, 0, 0, 0, 0]
     results.clear()
 
-
 def update_visual_splits():
     global personal_record, world_record
     personal_record = timer.get_personal_record()
     world_record = timer.get_world_record()
-
 
 def draw_split_names():
     x, y = 25, 75
@@ -222,7 +244,6 @@ def draw_split_names():
         draw_text(split, SPLIT_FONT, WHITE, x + text_width // 2, y)
         y += 50
 
-
 def convert_seconds_to_mins(seconds):
     seconds = abs(seconds)
     minutes = seconds // 60
@@ -231,7 +252,6 @@ def convert_seconds_to_mins(seconds):
         return f"{minutes:01}:{remaining_seconds:02}"
     else:
         return f"{seconds}"
-
 
 def draw_splits():
     x, y = 350, 25
@@ -258,18 +278,16 @@ def draw_splits():
             draw_text(split, SPLIT_FONT, GREEN, x, y)
         y += 50
 
-
 def draw_black_rect():
     pygame.draw.rect(win, BLACK, (0, 0, 1250, 400))
-
 
 def draw_reset_button():
     pygame.draw.rect(win, BLACK, RESET_BUTTON_RECT)
     draw_text("RESET VALVES", NAME_FONT, WHITE, RESET_BUTTON_RECT.centerx, RESET_BUTTON_RECT.centery)
 
-
 def draw_gui():
     draw_black_rect()
+    draw_trophies()
     draw_valve_buttons()
     draw_valve_text()
     draw_valve_headings()
@@ -278,8 +296,11 @@ def draw_gui():
     draw_results_box()
     draw_splits()
     draw_split_names()
-    draw_reset_button()  
-
+    draw_reset_button()
+    if all(trophies_selected.values()):
+        draw_bombs()   
+    
+    
 
 def main():
     run = True
@@ -290,9 +311,7 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                # Get mouse position
                 mouse_pos = pygame.mouse.get_pos()
-                # Handle mouse click
                 handle_click(mouse_pos)
                 click_gobblegum(mouse_pos)
                 display_optimal_solution()
@@ -302,13 +321,10 @@ def main():
                 if event.key == pygame.K_RETURN:
                     reset()
 
-        # Draw GUI elements
         draw_gui()
-        # Update the display
         pygame.display.update()
 
     pygame.quit()
-
 
 if __name__ == "__main__":
     main()
