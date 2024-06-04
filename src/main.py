@@ -238,6 +238,9 @@ def draw_timer():
     timer_text = timer.get_time()
     draw_text(timer_text, TIMER_FONT, WHITE, 1000, 150)
 
+    attempts_text = f"Attempts: {timer.get_attempts()}"
+    draw_text(attempts_text, NAME_FONT, WHITE, 1000, 240)
+
 def reset():
     global personal_record, world_record, pressed_locations
     personal_record = []

@@ -125,3 +125,6 @@ class Timer:
                     self.start()
             elif event.key == pygame.K_RETURN:
                 self.reset()
+
+    def get_attempts(self):
+        return self.attempts
