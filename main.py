@@ -149,10 +149,28 @@ def click_gobblegum(mouse_pos):
             return gobblegum
         x += 140 + spacing
 
+pressed_locations = [] # Move the list outside of draw_bombs()
+
 def draw_bombs():
     x, y = 50, 350
-    draw_text("TEST", NAME_FONT, WHITE, x, y)
+    spacing = 200
 
+    pressed_keys = pygame.key.get_pressed()
+    key_mapping = {
+        pygame.K_1: "DEPT",
+        pygame.K_2: "DRAGON",
+        pygame.K_3: "ARM",
+        pygame.K_4: "SUPPLY",
+        pygame.K_5: "INF",
+        pygame.K_6: "TANK",
+    }
+    
+    for key, location in key_mapping.items():
+        if pressed_keys[key] and location not in pressed_locations:
+            pressed_locations.append(location)  # Add only if not already present
+
+    for i, location in enumerate(pressed_locations):
+        draw_text(location, NAME_FONT, WHITE, x + i * spacing, y)
 
 def click_trophies(mouse_pos):
     x, y = 50, 350
@@ -221,10 +239,12 @@ def draw_timer():
     draw_text(timer_text, TIMER_FONT, WHITE, 1000, 150)
 
 def reset():
-    global personal_record, world_record
+    global personal_record, world_record, pressed_locations
     personal_record = []
     world_record = []
+    pressed_locations = []
     reset_valves()
+
     for key in gobblegums:
         gobblegums[key] = True
 
@@ -304,8 +324,7 @@ def draw_gui():
     draw_splits()
     draw_split_names()
     draw_reset_button()
-    if all(trophies_selected.values()):
-        draw_bombs()   
+       
     
     
 
@@ -329,6 +348,8 @@ def main():
                     reset()
 
         draw_gui()
+        if all(trophies_selected.values()):
+            draw_bombs()
         pygame.display.update()
 
     pygame.quit()
