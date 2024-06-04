@@ -22,7 +22,6 @@ class Timer:
     def start(self):
         self.running = True 
         self.start_time = time.time()
-        self.attempts += 1
         self.load_data()
         self.split_number = 0 
 
@@ -73,26 +72,27 @@ class Timer:
 
 
     def save_data(self):
-        if self.finished:
-            with open(self.data, "w") as file:
-                if len(self.splits) == len(self.world_record):
-                    if self.splits[-1] < self.personal_best[-1]:
-                        self.personal_best = self.splits
-                    if self.splits[-1] < self.world_record[-1]:
-                        self.world_record = self.splits
-                data = {
-                    "timing": {
-                        "world_record": {
-                            "splits": self.world_record
-                        },
-                        "personal_best": {
-                            "splits": self.personal_best
-                        }
+        with open(self.data, "w") as file:
+            data = {
+                "timing": {
+                    "world_record": {
+                        "splits": self.world_record
                     },
-                    "attempts": self.attempts
-                }
-                json.dump(data, file, indent=4)
+                    "personal_best": {
+                        "splits": self.personal_best
+                    }
+                },
+                "attempts": self.attempts
+            }
+            json.dump(data, file, indent=4)
 
+    def update_records(self):
+        if len(self.splits) == len(self.world_record):
+            if self.splits[-1] < self.personal_best[-1]:
+                self.personal_best = self.splits
+            if self.splits[-1] < self.world_record[-1]:
+                self.world_record = self.splits
+        self.save_data()
 
     def reset(self):
         self.timer = 0
@@ -102,6 +102,8 @@ class Timer:
         self.start_time = 0
         self.wr_difference = []
         self.pr_difference = []
+        self.attempts += 1  
+        self.save_data()  
         self.load_data()
 
 
@@ -109,6 +111,7 @@ class Timer:
         if len(self.splits) == len(self.world_record):
             self.finished = True
             self.running = False
+            self.update_records()  
             
 
     def get_input(self, event):
@@ -121,6 +124,4 @@ class Timer:
                 elif not self.running and not self.finished:
                     self.start()
             elif event.key == pygame.K_RETURN:
-                self.save_data()
                 self.reset()
-    
