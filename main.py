@@ -51,7 +51,7 @@ gobblegum_names = ["Reign_Drops", "Idle_Eyes",
 gobblegums = {"Reign_Drops": True, "Idle_Eyes": True,
               "Extra_Credit": True, "Nukes": True, "Shopping_Free": True}
 
-trophies = ["Spawn", "Eyebeam", "Tank", "Toilet", "Dragon Strike", "Bunker"]
+trophies = ["Spawn", "Eyebeam", "Tank", "Toilet", "Dragon S", "Bunker"]
 trophies_selected = {trophy: False for trophy in trophies}
 
 valve_logic = ValveLogic("valve.json")
@@ -120,7 +120,14 @@ def draw_trophies():
         x, y = 50, 350
         spacing = 200
         for trophy in trophies:
-            color = GREEN if trophies_selected[trophy] else WHITE
+            color = GREEN if trophies_selected[trophy] else RED
+            
+            text_surface = NAME_FONT.render(trophy, True, WHITE)
+            text_rect = text_surface.get_rect(topleft=(x - 47, y - 10))  
+            text_rect.width += 20  
+            text_rect.height += 20
+            pygame.draw.rect(win, (0, 0, 0, 0), text_rect)  
+
             draw_text(trophy, NAME_FONT, color, x, y)
             x += spacing
 
@@ -152,20 +159,20 @@ def click_trophies(mouse_pos):
     spacing = 200
     padding = 10
 
-    if not all(trophies_selected.values()):
-        for trophy in trophies:
-            text_surface = NAME_FONT.render(trophy, True, WHITE)
-            text_width, text_height = text_surface.get_size()
+    for trophy in trophies:
+        text_surface = NAME_FONT.render(trophy, True, WHITE)
+        text_width, text_height = text_surface.get_size()
 
-            text_rect = text_surface.get_rect(
-                topleft=(x - padding, y - text_height // 2 - padding)
-            )
-            text_rect.width += 2 * padding
-            text_rect.height += 2 * padding
+        # Create larger rectangle for click detection
+        text_rect = text_surface.get_rect(topleft=(x - padding, y - text_height // 2 - padding))
+        text_rect.width += 2 * padding
+        text_rect.height += 2 * padding
 
-            if text_rect.collidepoint(mouse_pos):
-                trophies_selected[trophy] = not trophies_selected[trophy]
-            x += spacing  
+        if text_rect.collidepoint(mouse_pos):
+            trophies_selected[trophy] = not trophies_selected[trophy]
+            break  
+
+        x += spacing  
 
 
 def handle_click(mouse_pos):
