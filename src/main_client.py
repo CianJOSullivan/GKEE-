@@ -2,12 +2,12 @@ import pygame
 from images import *
 from logic import *
 from timer import Timer
-
+from client import Client
 import time
 import json
 from server import Server
 
-server = Server()
+client = Client()
 
 pygame.font.init()
 pygame.init()
@@ -321,6 +321,25 @@ def draw_reset_button():
     pygame.draw.rect(win, BLACK, RESET_BUTTON_RECT)
     draw_text("RESET VALVES", NAME_FONT, WHITE, RESET_BUTTON_RECT.centerx, RESET_BUTTON_RECT.centery)
 
+
+def send_info():
+    global world_record, personal_record, results
+    data_to_send = {
+        "selected_states": selected_states,
+        "trophies_selected": trophies_selected,
+        "splits": timer.get_splits(),
+        "results": results,
+        "world_record": world_record,
+        "personal_record": personal_record,
+        "running":timer.running ,
+        "wr_diff":timer.wr_difference ,
+        "pr_diff":timer.pr_difference,
+        "finished":timer.finished ,
+        "start_time":timer.start_time 
+    }
+    json_data = json.dumps(data_to_send)
+    return json_data
+
 def update_game_state(d):
     global selected_states, trophies_selected, results, world_record, personal_record
     try:
@@ -333,8 +352,6 @@ def update_game_state(d):
         results = json_data["results"]
         world_record = json_data["world_record"]
         personal_record = json_data["personal_record"]
-        
-
         timer.wr_difference = json_data["wr_diff"]
         timer.pr_difference = json_data["pr_diff"]
         timer.finished = json_data["finished"]
@@ -342,32 +359,6 @@ def update_game_state(d):
         
     except json.JSONDecodeError:
         print("Failed to decode JSON data")
-
-
-
-def send_info():
-    global world_record, personal_record, results
-    data_to_send = {
-        "selected_states": selected_states,
-        "trophies_selected": trophies_selected,
-        "splits": timer.get_splits(),
-        "results": results,
-        "world_record": world_record,
-        "personal_record": personal_record,
-        "running":timer.running ,
-       
-        
-
-        "wr_diff":timer.wr_difference ,
-        "pr_diff":timer.pr_difference,
-        "finished":timer.finished ,
-        "start_time":timer.start_time 
-        
-
-    }
-    json_data = json.dumps(data_to_send)
-    return json_data
-
 
 def draw_gui():
     draw_black_rect()
@@ -398,15 +389,15 @@ def main():
                 handle_click(mouse_pos)
                 click_gobblegum(mouse_pos)
                 display_optimal_solution()
-                server.broadcast_message(send_info())
+                client.send_message(send_info())
             elif event.type == pygame.KEYDOWN:
                 timer.get_input(event)
                 update_visual_splits()
-                server.broadcast_message(send_info())
+                client.send_message(send_info())
                 if event.key == pygame.K_RETURN:
                     reset()
 
-        data = server.handle_connections()
+        data = client.handle_communication()
         if data:
             update_game_state(data)
         draw_gui()

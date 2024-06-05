@@ -19,6 +19,13 @@ class Timer:
         self.load_data()
 
 
+    def get_splits(self):
+        return self.splits
+    
+    def set_splits(self, splits):
+        self.splits = splits
+    
+
     def start(self):
         self.running = True 
         self.start_time = time.time()
@@ -70,7 +77,6 @@ class Timer:
     def get_world_record(self):
         return self.wr_difference
 
-
     def save_data(self):
         with open(self.data, "w") as file:
             data = {
@@ -94,6 +100,7 @@ class Timer:
                 self.world_record = self.splits
         self.save_data()
 
+
     def reset(self):
         self.timer = 0
         self.splits = []
@@ -103,7 +110,7 @@ class Timer:
         self.wr_difference = []
         self.pr_difference = []
         self.attempts += 1  
-        self.save_data()  
+        self.save_data() 
         self.load_data()
 
 
@@ -111,7 +118,6 @@ class Timer:
         if len(self.splits) == len(self.world_record):
             self.finished = True
             self.running = False
-            self.update_records()  
             
 
     def get_input(self, event):
@@ -124,7 +130,6 @@ class Timer:
                 elif not self.running and not self.finished:
                     self.start()
             elif event.key == pygame.K_RETURN:
-                self.reset()
-
+                self.reset() 
     def get_attempts(self):
         return self.attempts
