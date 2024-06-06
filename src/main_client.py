@@ -335,13 +335,14 @@ def send_info():
         "wr_diff":timer.wr_difference ,
         "pr_diff":timer.pr_difference,
         "finished":timer.finished ,
-        "start_time":timer.start_time 
+        "start_time":timer.start_time,
+        "pressed_locations": pressed_locations
     }
     json_data = json.dumps(data_to_send)
     return json_data
 
 def update_game_state(d):
-    global selected_states, trophies_selected, results, world_record, personal_record
+    global selected_states, trophies_selected, results, world_record, personal_record, pressed_locations
     try:
         json_data = json.loads(d)
         print(f"Unpacked JSON data: {json_data}")
@@ -356,6 +357,7 @@ def update_game_state(d):
         timer.pr_difference = json_data["pr_diff"]
         timer.finished = json_data["finished"]
         timer.start_time = json_data["start_time"]
+        pressed_locations = json_data["pressed_locations"]
         
     except json.JSONDecodeError:
         print("Failed to decode JSON data")

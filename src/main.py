@@ -3,12 +3,6 @@ from images import *
 from logic import *
 from timer import Timer
 
-import time
-import json
-from server import Server
-
-server = Server()
-
 pygame.font.init()
 pygame.init()
 pygame.display.set_caption("Gorod Krovi Easter Egg")
@@ -42,7 +36,7 @@ world_record = []
 
 split_names = ["Flight 1", "Flight 2", "Start Trophy", "Start Boss", "Finish"]
 
-gobblegum_images = [Reign_Drops, Idle_Eyes, Extra_Credit, Nukes, Shopping_Free]
+gobblegum_images = [Reign_Drops, Idle_Eyes, Extra_Credit, Nukes, Abh]
 gobblegum_images = [pygame.transform.scale(
     image, (140, 140)) for image in gobblegum_images]
 gobblegum_images_gray = []
@@ -53,9 +47,9 @@ for image in gobblegum_images:
     gobblegum_images_gray.append(image_gray)
 
 gobblegum_names = ["Reign_Drops", "Idle_Eyes",
-                   "Extra_Credit", "Nukes", "Shopping_Free"]
+                   "Extra_Credit", "Nukes", "Abh"]
 gobblegums = {"Reign_Drops": True, "Idle_Eyes": True,
-              "Extra_Credit": True, "Nukes": True, "Shopping_Free": True}
+              "Extra_Credit": True, "Nukes": True, "Abh": True}
 
 trophies = ["Spawn", "Eyebeam", "Tank", "Toilet", "Dragon S", "Bunker"]
 trophies_selected = {trophy: False for trophy in trophies}
@@ -321,54 +315,6 @@ def draw_reset_button():
     pygame.draw.rect(win, BLACK, RESET_BUTTON_RECT)
     draw_text("RESET VALVES", NAME_FONT, WHITE, RESET_BUTTON_RECT.centerx, RESET_BUTTON_RECT.centery)
 
-def update_game_state(d):
-    global selected_states, trophies_selected, results, world_record, personal_record
-    try:
-        json_data = json.loads(d)
-        print(f"Unpacked JSON data: {json_data}")
-        selected_states = json_data["selected_states"]
-        trophies_selected = json_data["trophies_selected"]
-        timer.set_splits(json_data["splits"])
-        timer.running = json_data["running"]
-        results = json_data["results"]
-        world_record = json_data["world_record"]
-        personal_record = json_data["personal_record"]
-        
-
-        timer.wr_difference = json_data["wr_diff"]
-        timer.pr_difference = json_data["pr_diff"]
-        timer.finished = json_data["finished"]
-        timer.start_time = json_data["start_time"]
-        
-    except json.JSONDecodeError:
-        print("Failed to decode JSON data")
-
-
-
-def send_info():
-    global world_record, personal_record, results
-    data_to_send = {
-        "selected_states": selected_states,
-        "trophies_selected": trophies_selected,
-        "splits": timer.get_splits(),
-        "results": results,
-        "world_record": world_record,
-        "personal_record": personal_record,
-        "running":timer.running ,
-       
-        
-
-        "wr_diff":timer.wr_difference ,
-        "pr_diff":timer.pr_difference,
-        "finished":timer.finished ,
-        "start_time":timer.start_time 
-        
-
-    }
-    json_data = json.dumps(data_to_send)
-    return json_data
-
-
 def draw_gui():
     draw_black_rect()
     draw_trophies()
@@ -398,17 +344,12 @@ def main():
                 handle_click(mouse_pos)
                 click_gobblegum(mouse_pos)
                 display_optimal_solution()
-                server.broadcast_message(send_info())
             elif event.type == pygame.KEYDOWN:
                 timer.get_input(event)
                 update_visual_splits()
-                server.broadcast_message(send_info())
                 if event.key == pygame.K_RETURN:
                     reset()
 
-        data = server.handle_connections()
-        if data:
-            update_game_state(data)
         draw_gui()
         if all(trophies_selected.values()):
             draw_bombs()
