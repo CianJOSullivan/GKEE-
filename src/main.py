@@ -132,7 +132,7 @@ def draw_trophies():
             text_rect = text_surface.get_rect(topleft=(x - 47, y - 10))  
             text_rect.width += 20  
             text_rect.height += 20
-            pygame.draw.rect(win, (0, 0, 0, 0), text_rect)  
+            #pygame.draw.rect(win, (0, 0, 0, 0), text_rect)  
 
             draw_text(trophy, NAME_FONT, color, x, y)
             x += spacing
@@ -322,7 +322,7 @@ def draw_reset_button():
     draw_text("RESET VALVES", NAME_FONT, WHITE, RESET_BUTTON_RECT.centerx, RESET_BUTTON_RECT.centery)
 
 def update_game_state(d):
-    global selected_states, trophies_selected, results, world_record, personal_record
+    global selected_states, trophies_selected, results, world_record, personal_record, pressed_locations
     try:
         json_data = json.loads(d)
         print(f"Unpacked JSON data: {json_data}")
@@ -333,7 +333,7 @@ def update_game_state(d):
         results = json_data["results"]
         world_record = json_data["world_record"]
         personal_record = json_data["personal_record"]
-        
+        pressed_locations = json_data["pressed_locations"]
 
         timer.wr_difference = json_data["wr_diff"]
         timer.pr_difference = json_data["pr_diff"]
@@ -355,6 +355,7 @@ def send_info():
         "world_record": world_record,
         "personal_record": personal_record,
         "running":timer.running ,
+        "pressed_locations":pressed_locations,
        
         
 
