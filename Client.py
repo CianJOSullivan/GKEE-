@@ -4,7 +4,7 @@ import socket
 class Client:
     def __init__(self) -> None:
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host = '109.255.55.167'  # Replace with your server's public IP address
+        self.host = ''  # Replace with your server's public IP address
         self.port = 9999
         self.start_client()
 
