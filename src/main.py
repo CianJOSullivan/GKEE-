@@ -1,4 +1,7 @@
 import pygame
+
+from server import Server
+
 from images import *
 from logic import *
 from timer import Timer
@@ -57,11 +60,13 @@ trophies_selected = {trophy: False for trophy in trophies}
 valve_logic = ValveLogic("../data/valve.json")
 timer = Timer()
 
+
 def draw_text(text, font, color, x, y):
     textobj = font.render(text, True, color)
     textrect = textobj.get_rect()
     textrect.center = (x, y)
     win.blit(textobj, textrect)
+
 
 def draw_valve_buttons():
     x, y = 35, 470
@@ -74,6 +79,7 @@ def draw_valve_buttons():
                 x, y + (row * (spacing + height)), width, height))
         x += 170
 
+
 def draw_results_box():
     pygame.draw.rect(win, BLACK, (1050, 470, 170, 220))
     x, y = 1050, 470
@@ -83,6 +89,7 @@ def draw_results_box():
         draw_text(result, NAME_FONT, WHITE, x + 10 + (text_width // 2), y + 20)
         y += 35
 
+
 def draw_valve_headings():
     x, y = 105, 450
     headings = locations.copy()
@@ -90,6 +97,7 @@ def draw_valve_headings():
     for name in headings:
         draw_text(name, NAME_FONT, BLACK, x, y)
         x += 170
+
 
 def draw_valve_text():
     x, y = 35, 470
@@ -100,8 +108,9 @@ def draw_valve_text():
     for valve_name in locations:
         for row in range(5):
             draw_text(text_options[row], NAME_FONT, BLACK if selected_states[valve_name][row]
-                      else WHITE, x + (width//2), y + (row * (spacing + height)) + (height//2))
+            else WHITE, x + (width // 2), y + (row * (spacing + height)) + (height // 2))
         x += 170
+
 
 def draw_gobblegums():
     x, y = 75, 700
@@ -116,15 +125,15 @@ def draw_gobblegums():
 
 
 def draw_trophies():
-    if not all(trophies_selected.values()):  
+    if not all(trophies_selected.values()):
         x, y = 50, 350
         spacing = 200
         for trophy in trophies:
             color = GREEN if trophies_selected[trophy] else RED
-            
+
             text_surface = NAME_FONT.render(trophy, True, WHITE)
-            text_rect = text_surface.get_rect(topleft=(x - 47, y - 10))  
-            text_rect.width += 20  
+            text_rect = text_surface.get_rect(topleft=(x - 47, y - 10))
+            text_rect.width += 20
             text_rect.height += 20
             #pygame.draw.rect(win, (0, 0, 0, 0), text_rect)  
 
@@ -149,7 +158,9 @@ def click_gobblegum(mouse_pos):
             return gobblegum
         x += 140 + spacing
 
-pressed_locations = [] # Move the list outside of draw_bombs()
+
+pressed_locations = []  # Move the list outside of draw_bombs()
+
 
 def draw_bombs():
     x, y = 50, 350
@@ -164,13 +175,14 @@ def draw_bombs():
         pygame.K_5: "INF",
         pygame.K_6: "TANK",
     }
-    
+
     for key, location in key_mapping.items():
         if pressed_keys[key] and location not in pressed_locations:
             pressed_locations.append(location)  # Add only if not already present
 
     for i, location in enumerate(pressed_locations):
         draw_text(location, NAME_FONT, WHITE, x + i * spacing, y)
+
 
 def click_trophies(mouse_pos):
     x, y = 50, 350
@@ -188,9 +200,9 @@ def click_trophies(mouse_pos):
 
         if text_rect.collidepoint(mouse_pos):
             trophies_selected[trophy] = not trophies_selected[trophy]
-            break  
+            break
 
-        x += spacing  
+        x += spacing
 
 
 def handle_click(mouse_pos):
@@ -229,10 +241,12 @@ def handle_click(mouse_pos):
                     selected_states[valve_name][i] = 1
         x += 170
 
+
 def display_optimal_solution():
     results.clear()
     for i in valve_logic.return_optimal_solution(locations, selected_states):
         results.append(i)
+
 
 def draw_timer():
     timer_text = timer.get_time()
@@ -240,6 +254,7 @@ def draw_timer():
 
     attempts_text = f"Attempts: {timer.get_attempts()}"
     draw_text(attempts_text, NAME_FONT, WHITE, 1000, 240)
+
 
 def reset():
     global personal_record, world_record, pressed_locations
@@ -251,20 +266,22 @@ def reset():
     for key in gobblegums:
         gobblegums[key] = True
 
-    for key in trophies_selected:   
+    for key in trophies_selected:
         trophies_selected[key] = False
     return selected_states, results, gobblegums
-    
+
 
 def reset_valves():
     for key in selected_states:
         selected_states[key] = [0, 0, 0, 0, 0]
     results.clear()
 
+
 def update_visual_splits():
     global personal_record, world_record
     personal_record = timer.get_personal_record()
     world_record = timer.get_world_record()
+
 
 def draw_split_names():
     x, y = 25, 75
@@ -274,6 +291,7 @@ def draw_split_names():
         draw_text(split, SPLIT_FONT, WHITE, x + text_width // 2, y)
         y += 50
 
+
 def convert_seconds_to_mins(seconds):
     seconds = abs(seconds)
     minutes = seconds // 60
@@ -282,6 +300,7 @@ def convert_seconds_to_mins(seconds):
         return f"{minutes:01}:{remaining_seconds:02}"
     else:
         return f"{seconds}"
+
 
 def draw_splits():
     x, y = 350, 25
@@ -308,14 +327,16 @@ def draw_splits():
             draw_text(split, SPLIT_FONT, GREEN, x, y)
         y += 50
 
+
 def draw_black_rect():
     pygame.draw.rect(win, BLACK, (0, 0, 1250, 400))
+
 
 def draw_reset_button():
     pygame.draw.rect(win, BLACK, RESET_BUTTON_RECT)
     draw_text("RESET VALVES", NAME_FONT, WHITE, RESET_BUTTON_RECT.centerx, RESET_BUTTON_RECT.centery)
 
-<<<<<<< HEAD
+
 def update_game_state(d):
     global selected_states, trophies_selected, results, world_record, personal_record, pressed_locations
     try:
@@ -334,10 +355,9 @@ def update_game_state(d):
         timer.pr_difference = json_data["pr_diff"]
         timer.finished = json_data["finished"]
         timer.start_time = json_data["start_time"]
-        
+
     except json.JSONDecodeError:
         print("Failed to decode JSON data")
-
 
 
 def send_info():
@@ -349,24 +369,17 @@ def send_info():
         "results": results,
         "world_record": world_record,
         "personal_record": personal_record,
-        "running":timer.running ,
-        "pressed_locations":pressed_locations,
-       
-        
-
-        "wr_diff":timer.wr_difference ,
-        "pr_diff":timer.pr_difference,
-        "finished":timer.finished ,
-        "start_time":timer.start_time 
-        
-
+        "running": timer.running,
+        "pressed_locations": pressed_locations,
+        "wr_diff": timer.wr_difference,
+        "pr_diff": timer.pr_difference,
+        "finished": timer.finished,
+        "start_time": timer.start_time
     }
     json_data = json.dumps(data_to_send)
     return json_data
 
 
-=======
->>>>>>> 134c37664b67ae1d2e4ae05ee1f867a02338daea
 def draw_gui():
     draw_black_rect()
     draw_trophies()
@@ -379,9 +392,7 @@ def draw_gui():
     draw_splits()
     draw_split_names()
     draw_reset_button()
-       
-    
-    
+
 
 def main():
     run = True
@@ -408,6 +419,7 @@ def main():
         pygame.display.update()
 
     pygame.quit()
+
 
 if __name__ == "__main__":
     main()
