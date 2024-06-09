@@ -1,6 +1,7 @@
 import socket
 import select
 
+
 class Client:
     def __init__(self, host='', port=9999):
         self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -50,5 +51,3 @@ class Client:
     def close_connection(self):
         print(f"Closing connection to server")
         self.client_socket.close()
-
-

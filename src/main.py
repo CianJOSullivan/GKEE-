@@ -1,15 +1,14 @@
 import pygame
-
 from server import Server
-
 from images import *
 from logic import *
 from timer import Timer
 
+
 pygame.font.init()
 pygame.init()
 pygame.display.set_caption("Gorod Krovi Easter Egg")
-
+server = Server()
 icon = Shopping_Free
 pygame.display.set_icon(icon)
 
@@ -126,19 +125,34 @@ def draw_gobblegums():
 
 def draw_trophies():
     if not all(trophies_selected.values()):
-        x, y = 50, 350
-        spacing = 200
+        x, y = 125, 350
+
+        spacing = 50
         for trophy in trophies:
             color = GREEN if trophies_selected[trophy] else RED
 
             text_surface = NAME_FONT.render(trophy, True, WHITE)
-            text_rect = text_surface.get_rect(topleft=(x - 47, y - 10))
-            text_rect.width += 20
-            text_rect.height += 20
-            #pygame.draw.rect(win, (0, 0, 0, 0), text_rect)  
+            text_rect = text_surface.get_rect()
+            text_rect.x -= text_rect.width // 2
 
             draw_text(trophy, NAME_FONT, color, x, y)
-            x += spacing
+            x += spacing + 150
+
+
+def click_trophies(mouse_pos):
+    x, y = 50, 350
+    width = 150
+    height = 80
+    spacing = 50
+
+    for trophy in trophies:
+        trophy_rect = pygame.Rect(x, y -20, width, height)
+
+        if trophy_rect.collidepoint(mouse_pos):
+            trophies_selected[trophy] = not trophies_selected[trophy]
+            break
+
+        x += spacing + width
 
 
 def click_gobblegum(mouse_pos):
@@ -182,27 +196,6 @@ def draw_bombs():
 
     for i, location in enumerate(pressed_locations):
         draw_text(location, NAME_FONT, WHITE, x + i * spacing, y)
-
-
-def click_trophies(mouse_pos):
-    x, y = 50, 350
-    spacing = 200
-    padding = 10
-
-    for trophy in trophies:
-        text_surface = NAME_FONT.render(trophy, True, WHITE)
-        text_width, text_height = text_surface.get_size()
-
-        # Create larger rectangle for click detection
-        text_rect = text_surface.get_rect(topleft=(x - padding, y - text_height // 2 - padding))
-        text_rect.width += 2 * padding
-        text_rect.height += 2 * padding
-
-        if text_rect.collidepoint(mouse_pos):
-            trophies_selected[trophy] = not trophies_selected[trophy]
-            break
-
-        x += spacing
 
 
 def handle_click(mouse_pos):
@@ -343,14 +336,13 @@ def update_game_state(d):
         json_data = json.loads(d)
         print(f"Unpacked JSON data: {json_data}")
         selected_states = json_data["selected_states"]
-        trophies_selected = json_data["trophies_selected"]
         timer.set_splits(json_data["splits"])
+        trophies_selected = json_data["trophies_selected"]
         timer.running = json_data["running"]
         results = json_data["results"]
         world_record = json_data["world_record"]
         personal_record = json_data["personal_record"]
         pressed_locations = json_data["pressed_locations"]
-
         timer.wr_difference = json_data["wr_diff"]
         timer.pr_difference = json_data["pr_diff"]
         timer.finished = json_data["finished"]
@@ -364,11 +356,11 @@ def send_info():
     global world_record, personal_record, results
     data_to_send = {
         "selected_states": selected_states,
-        "trophies_selected": trophies_selected,
         "splits": timer.get_splits(),
         "results": results,
         "world_record": world_record,
         "personal_record": personal_record,
+        "trophies_selected": trophies_selected,
         "running": timer.running,
         "pressed_locations": pressed_locations,
         "wr_diff": timer.wr_difference,
@@ -407,12 +399,17 @@ def main():
                 handle_click(mouse_pos)
                 click_gobblegum(mouse_pos)
                 display_optimal_solution()
+                server.broadcast_message(send_info())
             elif event.type == pygame.KEYDOWN:
                 timer.get_input(event)
                 update_visual_splits()
+                server.broadcast_message(send_info())
                 if event.key == pygame.K_RETURN:
                     reset()
 
+        data = server.handle_connections()
+        if data:
+            update_game_state(data)
         draw_gui()
         if all(trophies_selected.values()):
             draw_bombs()

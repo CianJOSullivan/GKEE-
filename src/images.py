@@ -1,5 +1,4 @@
-import pygame 
-
+import pygame
 
 Abh = pygame.image.load('../images/Anywhere_But_Here.jpeg')
 Nukes = pygame.image.load('../images/Dead_of_Nuclear_Winter_GobbleGum_BO3.jpeg')

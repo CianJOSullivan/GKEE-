@@ -1,11 +1,11 @@
 import json
 
+
 class ValveLogic:
     def __init__(self, json_file):
         # Load the valve data from the JSON file
         with open(json_file) as f:
             self.valve_data = json.load(f)["Valves"][0]  # Access the dictionary within the list
-
 
     def get_current_state(self, locations, selected_states):
         current_state = {}
@@ -13,7 +13,7 @@ class ValveLogic:
             if selected_states[valve_name][0]:
                 for i in range(2, 5):
                     if selected_states[valve_name][i]:
-                        current_state[valve_name] = f"green-{i-1}"
+                        current_state[valve_name] = f"green-{i - 1}"
             elif selected_states[valve_name][1]:
                 current_state[valve_name] = "cylinder"
             else:
@@ -22,7 +22,6 @@ class ValveLogic:
                         current_state[valve_name] = str(i - 1)
                         break
         return current_state
-    
 
     def find_optimal_solution(self, current_state):
         green_location = None
@@ -52,7 +51,6 @@ class ValveLogic:
                         best_output = values
 
         return best_output
-    
 
     def get_changes_required(self, current_state, best_output):
         changes_required = {}
@@ -68,7 +66,6 @@ class ValveLogic:
             if current_value != value:
                 changes_required[valve_name] = value
         return changes_required
-        
 
     def return_optimal_solution(self, locations, selected_states):
         # Check for optimal solution if a green light is turned on
@@ -82,11 +79,3 @@ class ValveLogic:
                     results.append(f"{valve_name} -> {value}")
                 return results
         return []
-        
-
-
-    
-
-
-
-

@@ -1,6 +1,7 @@
 import socket
 import select
 
+
 class Server:
     def __init__(self, host='0.0.0.0', port=9999):
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -15,7 +16,7 @@ class Server:
     def handle_connections(self):
         readable, writable, exceptional = select.select(self.inputs, self.outputs, self.inputs, 0)
         output = ""
-        
+
         for s in readable:
             if s is self.server_socket:
                 client_socket, addr = s.accept()
@@ -33,7 +34,6 @@ class Server:
                         self.outputs.append(s)
                 else:
                     self.close_connection(s)
-                
 
         for s in writable:
             if self.message_queues[s]:
@@ -46,7 +46,7 @@ class Server:
             self.close_connection(s)
 
         return output
-    
+
     def send_message(self, client_socket, message):
         if client_socket in self.message_queues:
             self.message_queues[client_socket].append(message)
@@ -55,11 +55,9 @@ class Server:
         else:
             print(f"Cannot send message, no such client: {client_socket}")
 
-
     def broadcast_message(self, message):
         for client_socket in self.message_queues:
             self.send_message(client_socket, message)
-
 
     def close_connection(self, s):
         print(f"Closing connection to {s.getpeername()}")
@@ -74,4 +72,3 @@ class Server:
             s.close()
         self.server_socket.close()
         print("Server stopped")
-
